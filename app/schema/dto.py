@@ -1,6 +1,11 @@
 from pydantic import BaseModel
+from typing import List, Optional
 
-class PredictionResult(BaseModel):
-    image_path: str | None
+class PredictionItem(BaseModel):
     predicted_class: int | None
     confidence: float | None
+
+
+class PredictionResultList(BaseModel):
+    image_path: Optional[str]
+    predictions: List[PredictionItem]

@@ -1,45 +1,32 @@
-from ultralytics import YOLO
 from fastapi import UploadFile
 from ultralytics import YOLO
 from PIL import Image
 from io import BytesIO
 import numpy as np
+from pathlib import Path
+
+from app.schema.dto import PredictionItem, PredictionResultList
+
+MODEL = YOLO(str(Path(__file__).resolve().parent.parent / "models_pt" / "best.pt"))
 
 
-from app.schema.dto import PredictionResult
-
-MODEL = YOLO("app/models_pt/best.pt")
-
-
-async def FAT_DETECT(image: UploadFile) -> PredictionResult:
-    # Читаем файл в память
+async def FAT_DETECT(image: UploadFile) -> PredictionResultList:
     contents = await image.read()
     img_stream = BytesIO(contents)
 
-    # Преобразуем в массив numpy (YOLO принимает np.ndarray, PIL.Image, путь или torch.Tensor)
     pil_image = Image.open(img_stream).convert("RGB")
     np_image = np.array(pil_image)
 
-    # Запускаем инференс
     results = MODEL(np_image, save=False)
 
-    best_pred = None
-    max_conf = 0
+    predictions = []
 
     for r in results:
         for cls, box, conf in zip(r.boxes.cls, r.boxes.xyxy, r.boxes.conf):
-            if conf > max_conf:
-                max_conf = float(conf)
-                best_pred = int(cls)
+            print("class:", cls, "; conf =", conf)
+            predictions.append(
+                PredictionItem(predicted_class=int(cls), confidence=float(conf))
+            )
 
-    # Если ничего не найдено
-    if best_pred is None:
-        return PredictionResult(
-            image_path=str("sometihng result"), predicted_class=None, confidence=None
-        )
-
-    return PredictionResult(
-        image_path=str("sometihng result"),
-        predicted_class=best_pred,
-        confidence=max_conf,
-    )
+    print(predictions)
+    return PredictionResultList(image_path="something result", predictions=predictions)

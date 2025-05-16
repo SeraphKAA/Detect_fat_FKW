@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
 
-from app.schema.dto import PredictionResult
+from app.schema.dto import PredictionResultList
 from app.model.fat_detection import FAT_DETECT
 
 
@@ -15,9 +15,9 @@ app = FastAPI(
     "/predict/fat-detection",
     summary="Предсказание плана",
     description="Предсказание процента жира",
-    response_model=PredictionResult,
+    response_model=PredictionResultList,
 )
-async def detect_fat(image: UploadFile = File(...)):
+async def detect_fat(image: UploadFile):
     allowed_types = {"image/png", "image/jpeg"}
 
     if image.content_type not in allowed_types:
