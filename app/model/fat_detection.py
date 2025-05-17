@@ -23,10 +23,10 @@ async def FAT_DETECT(image: UploadFile) -> PredictionResultList:
 
     for r in results:
         for cls, box, conf in zip(r.boxes.cls, r.boxes.xyxy, r.boxes.conf):
-            print("class:", cls, "; conf =", conf)
+            # print("class:", cls, "; conf =", conf)
             predictions.append(
                 PredictionItem(predicted_class=int(cls), confidence=float(conf))
             )
 
-    print(predictions)
-    return PredictionResultList(image_path="something result", predictions=predictions)
+    # print(predictions)
+    return PredictionResultList(predictions=predictions)

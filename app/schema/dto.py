@@ -7,5 +7,4 @@ class PredictionItem(BaseModel):
 
 
 class PredictionResultList(BaseModel):
-    image_path: Optional[str]
     predictions: List[PredictionItem]
